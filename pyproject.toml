@@ -6,12 +6,37 @@ authors = ["danil-tr <daniltrvit@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
 numpy = "^1.26.3"
 pandas = "^2.2.0"
 joblib = "^1.3.2"
 scikit-learn = "^1.4.0"
 
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.4"
+pre-commit = "^3.6.0"
+
+[tool.black]
+line-length = 90
+target-version = ["py39"]
+
+[tool.isort]
+src_paths = ["ds_project"]
+profile = "black"
+line_length = 90
+lines_after_imports = 2
+
+[tool.nbqa.config]
+black = "pyproject.toml"
+isort = "pyproject.toml"
+flake8 = "setup.cfg"
+
+[tool.nbqa.addopts]
+flake8 = ["--extend-ignore=E402"]
+
+[tool.nbqa.mutate]
+black = 1
+isort = 1
 
 [build-system]
 requires = ["poetry-core"]
