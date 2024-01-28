@@ -19,11 +19,14 @@ def infer_model(model, test_df: pd.DataFrame) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    current_file = os.path.realpath(__file__)
-    current_directory = os.path.dirname(current_file)
-    data_path = os.path.join(current_directory, "data", "Iris", "test.csv")
-    model_path = os.path.join(current_directory, "data", "trained_model.sav")
-    prediction_path = os.path.join(current_directory, "data", "prediction.csv")
+    current_file_path = os.path.realpath(__file__)
+    parent_directory_path = os.path.dirname(os.path.dirname(current_file_path))
+
+    data_path = os.path.join(parent_directory_path, "data", "train.csv")
+    model_path = os.path.join(parent_directory_path, "model_result", "trained_model.sav")
+    prediction_path = os.path.join(
+        parent_directory_path, "model_result", "prediction.csv"
+    )
 
     test_df = pd.read_csv(data_path)
     model = joblib.load(model_path)

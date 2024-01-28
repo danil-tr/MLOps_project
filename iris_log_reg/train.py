@@ -17,10 +17,11 @@ def train_model(train_df: pd.DataFrame) -> LogisticRegression:
 
 
 if __name__ == "__main__":
-    current_file = os.path.realpath(__file__)
-    current_directory = os.path.dirname(current_file)
-    data_path = os.path.join(current_directory, "data", "Iris", "train.csv")
-    model_path = os.path.join(current_directory, "data", "trained_model.sav")
+    current_file_path = os.path.realpath(__file__)
+    parent_directory_path = os.path.dirname(os.path.dirname(current_file_path))
+
+    data_path = os.path.join(parent_directory_path, "data", "train.csv")
+    model_path = os.path.join(parent_directory_path, "model_result", "trained_model.sav")
 
     train_df = pd.read_csv(data_path)
     model = train_model(train_df)
