@@ -1,9 +1,18 @@
 import os
 
+import constants
+import hydra
 import joblib
 import pandas as pd
+from config import IrisData, Params
 from dvc.api import DVCFileSystem
+from hydra.core.config_store import ConfigStore
 from sklearn import metrics
+
+
+cs = ConfigStore.instance()
+cs.store(name="params", node=Params)
+cs.store(group="data", name="base_iris", node=IrisData)
 
 
 def infer_model(model, test_df: pd.DataFrame) -> pd.DataFrame:
@@ -19,11 +28,15 @@ def infer_model(model, test_df: pd.DataFrame) -> pd.DataFrame:
     return prediction
 
 
-def main():
-    current_file_path = os.path.realpath(__file__)
-    project_directory_path = os.path.dirname(os.path.dirname(current_file_path))
+@hydra.main(
+    config_path=os.path.join(constants.get_project_path(), "config"),
+    config_name="config",
+    version_base="1.3.2",
+)
+def main(cfg: Params) -> None:
+    project_directory_path = constants.get_project_path()
 
-    data_path = os.path.join(project_directory_path, "data", "test.csv")
+    data_path = os.path.join(project_directory_path, cfg["data"]["path"], "test.csv")
     model_path = os.path.join(project_directory_path, "model_result", "trained_model.sav")
     prediction_path = os.path.join(
         project_directory_path, "model_result", "prediction.csv"
