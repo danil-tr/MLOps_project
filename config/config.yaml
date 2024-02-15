@@ -3,12 +3,12 @@ defaults:
   - data: iris
 
 model:
-  name: log_reg_classifier
-  penalty: l2
-  dual: False
-  tol: 1e-4
-  C: 1.0
-  fit_intercept: True
-  intercept_scaling: 1.0
-  solver: "lbfgs"
-  max_iter: 100
+  name: catboost_classifier
+  random_seed: 63
+  iterations: 1000
+  learning_rate: 0.03
+  l2_leaf_reg: 3
+  bagging_temperature: 1
+  random_strength: 1
+  one_hot_max_size: 2
+  leaf_estimation_method: Newton

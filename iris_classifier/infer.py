@@ -2,8 +2,8 @@ import os
 
 import constants
 import hydra
-import joblib
 import pandas as pd
+from catboost import CatBoostClassifier
 from config import IrisData, Params
 from dvc.api import DVCFileSystem
 from hydra.core.config_store import ConfigStore
@@ -22,7 +22,7 @@ def infer_model(model, test_df: pd.DataFrame) -> pd.DataFrame:
 
     prediction = model.predict(X)
     print(
-        "The accuracy of the Logistic Regression is",
+        "The accuracy of the model is",
         metrics.accuracy_score(prediction, y),
     )
     return prediction
@@ -37,7 +37,7 @@ def main(cfg: Params) -> None:
     project_directory_path = constants.get_project_path()
 
     data_path = os.path.join(project_directory_path, cfg["data"]["path"], "test.csv")
-    model_path = os.path.join(project_directory_path, "model_result", "trained_model.sav")
+    model_path = os.path.join(project_directory_path, "model_result", "trained_model")
     prediction_path = os.path.join(
         project_directory_path, "model_result", "prediction.csv"
     )
@@ -46,7 +46,8 @@ def main(cfg: Params) -> None:
     fs.get_file("/data/test.csv", data_path)
 
     test_df = pd.read_csv(data_path)
-    model = joblib.load(model_path)
+    model = CatBoostClassifier()
+    model.load_model(model_path, format="onnx")
 
     prediction = pd.DataFrame(infer_model(model, test_df))
 
