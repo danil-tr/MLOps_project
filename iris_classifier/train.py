@@ -26,48 +26,51 @@ def train_model(
     model = CatBoostClassifier(**model_params)
     model.fit(X_train, y_train)
 
-    mlflow.set_tracking_uri(cfg["tracking_server"]["uri"])
-    mlflow.set_experiment(cfg["tracking_server"]["experiment_name"])
-    with mlflow.start_run():
-        mlflow.set_tags(tags={"version": 1.0, "framework": "Catboost"})
+    try:
+        mlflow.set_tracking_uri(cfg["tracking_server"]["uri"])
+        mlflow.set_experiment(cfg["tracking_server"]["experiment_name"])
+        with mlflow.start_run():
+            mlflow.set_tags(tags={"version": 1.0, "framework": "Catboost"})
 
-        features = ["Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"]
-        target = "Species"
+            features = ["Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"]
+            target = "Species"
 
-        X_test = test_df.iloc[:, 0:4]
-        y_test = test_df["Species"]
-        y_prediction = model.predict(X_test)
-        y_prediction_proba = model.predict_proba(X_test)
+            X_test = test_df.iloc[:, 0:4]
+            y_test = test_df["Species"]
+            y_prediction = model.predict(X_test)
+            y_prediction_proba = model.predict_proba(X_test)
 
-        roc_auc = metrics.roc_auc_score(
-            y_test, y_prediction_proba, multi_class="ovr", average="macro"
-        )
-        precision = metrics.precision_score(y_test, y_prediction, average="weighted")
-        recall = metrics.recall_score(y_test, y_prediction, average="weighted")
-        f1 = metrics.f1_score(y_test, y_prediction, average="weighted")
+            roc_auc = metrics.roc_auc_score(
+                y_test, y_prediction_proba, multi_class="ovr", average="macro"
+            )
+            precision = metrics.precision_score(y_test, y_prediction, average="weighted")
+            recall = metrics.recall_score(y_test, y_prediction, average="weighted")
+            f1 = metrics.f1_score(y_test, y_prediction, average="weighted")
 
-        corr_matrix_fig = project_metrics.get_fig_correlation_matrix(
-            pd.concat([X_test, X_train], ignore_index=True)
-        )
-        pair_features_fig = project_metrics.get_fig_pair_features(
-            pd.concat([test_df, train_df], ignore_index=True)
-        )
+            corr_matrix_fig = project_metrics.get_fig_correlation_matrix(
+                pd.concat([X_test, X_train], ignore_index=True)
+            )
+            pair_features_fig = project_metrics.get_fig_pair_features(
+                pd.concat([test_df, train_df], ignore_index=True)
+            )
 
-        # local_artifacts_path = os.path.join(constants.get_project_path(), "model_result")
-        mlflow.log_params(
-            {
-                "features": features,
-                "target": target,
-                "model_type": model.__class__,
-                "model_params": model.get_all_params(),
-            }
-        )
-        mlflow.log_metrics(
-            {"roc_auc": roc_auc, "precision": precision, "recall": recall, "f1": f1}
-        )
+            # local_artifacts_path = os.path.join(constants.get_project_path(), "model_result")
+            mlflow.log_params(
+                {
+                    "features": features,
+                    "target": target,
+                    "model_type": model.__class__,
+                    "model_params": model.get_all_params(),
+                }
+            )
+            mlflow.log_metrics(
+                {"roc_auc": roc_auc, "precision": precision, "recall": recall, "f1": f1}
+            )
 
-        mlflow.log_figure(corr_matrix_fig, "correlation_matrix.png")
-        mlflow.log_figure(pair_features_fig, "pair_features_fig.png")
+            mlflow.log_figure(corr_matrix_fig, "correlation_matrix.png")
+            mlflow.log_figure(pair_features_fig, "pair_features_fig.png")
+    except mlflow.MlflowException as mlflow_error:
+        print(mlflow_error)
 
     return model
 
