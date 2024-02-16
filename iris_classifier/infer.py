@@ -15,17 +15,20 @@ cs.store(name="params", node=Params)
 cs.store(group="data", name="base_iris", node=IrisData)
 
 
-def infer_model(model, test_df: pd.DataFrame) -> pd.DataFrame:
+def infer_model(model: CatBoostClassifier, test_df: pd.DataFrame) -> pd.DataFrame:
     test_df.drop(columns=test_df.columns[0], axis=1, inplace=True)
-    X = test_df.iloc[:, 0:4]
-    y = test_df["Species"]
+    X_test = test_df.iloc[:, 0:4]
+    y_test = test_df["Species"]
 
-    prediction = model.predict(X)
+    y_prediction = model.predict(X_test)
+    # y_prediction_proba = model.predict_proba(X_test)
+
     print(
         "The accuracy of the model is",
-        metrics.accuracy_score(prediction, y),
+        metrics.accuracy_score(y_prediction, y_test),
     )
-    return prediction
+
+    return y_prediction
 
 
 @hydra.main(
@@ -37,7 +40,9 @@ def main(cfg: Params) -> None:
     project_directory_path = constants.get_project_path()
 
     data_path = os.path.join(project_directory_path, cfg["data"]["path"], "test.csv")
-    model_path = os.path.join(project_directory_path, "model_result", "trained_model")
+    model_path = os.path.join(
+        project_directory_path, "model_result", "trained_model.onnx"
+    )
     prediction_path = os.path.join(
         project_directory_path, "model_result", "prediction.csv"
     )
