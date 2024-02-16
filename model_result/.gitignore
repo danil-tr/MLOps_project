@@ -1,2 +1,3 @@
 prediction.csv
 trained_model.onnx
+mlflow_model/

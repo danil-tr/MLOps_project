@@ -9,6 +9,7 @@ from catboost import CatBoostClassifier
 from config import IrisData, Params
 from dvc.api import DVCFileSystem
 from hydra.core.config_store import ConfigStore
+from mlflow.models import infer_signature
 from sklearn import metrics
 
 
@@ -40,6 +41,7 @@ def train_model(
             y_prediction = model.predict(X_test)
             y_prediction_proba = model.predict_proba(X_test)
 
+            # Log metrics and artifacts
             roc_auc = metrics.roc_auc_score(
                 y_test, y_prediction_proba, multi_class="ovr", average="macro"
             )
@@ -69,6 +71,18 @@ def train_model(
 
             mlflow.log_figure(corr_matrix_fig, "correlation_matrix.png")
             mlflow.log_figure(pair_features_fig, "pair_features_fig.png")
+
+            # Log model
+            signature = infer_signature(X_train, y_prediction)
+            mlflow.catboost.log_model(model, "model", signature=signature)
+
+            # Save model
+            mlflow_model_path = os.path.join(
+                constants.get_project_path(), "model_result", "mlflow_model"
+            )
+            if not os.path.exists(mlflow_model_path):
+                mlflow.catboost.save_model(model, mlflow_model_path, signature=signature)
+
     except mlflow.MlflowException as mlflow_error:
         print(mlflow_error)
 
