@@ -12,3 +12,9 @@ model:
   random_strength: 1
   one_hot_max_size: 2
   leaf_estimation_method: Newton
+  silent: True
+  allow_writing_files: False
+
+tracking_server:
+  experiment_name: iris_classification
+  uri: http://localhost:5000/

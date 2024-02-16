@@ -161,3 +161,7 @@ cython_debug/
 
 #Hydra experiments folder
 outputs/
+
+#Catboost folder
+#catboost_info/
+#127.0.0.0:5000/
