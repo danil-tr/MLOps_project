@@ -20,15 +20,15 @@ def call_triton_classifier(input: str) -> dict:
         [model_input],
         outputs=[
             InferRequestedOutput("probabilities", binary_data=True),
-            InferRequestedOutput("label", binary_data=True),
-            InferRequestedOutput("class_labels", binary_data=True),
+            InferRequestedOutput("label", binary_data=True)
+            # InferRequestedOutput("class_labels", binary_data=True),
         ],
     )
 
     dict_response = {
         "probabilities": query_response.as_numpy("probabilities"),
-        "label": query_response.as_numpy("label"),
-        "class_labels": query_response.as_numpy("class_labels"),
+        "label": query_response.as_numpy("label")
+        # "class_labels": query_response.as_numpy("class_labels"),
     }
     return dict_response
 
@@ -43,18 +43,12 @@ def main():
             [5.4, 3.4, 1.5, 0.4],
             [5.1, 3.3, 1.7, 0.5],
             [6.0, 3.0, 4.8, 1.8],
-            [5.5, 2.3, 4.0, 1.3],
-            [5.0, 3.6, 1.4, 0.2],
-            [5.7, 4.4, 1.5, 0.4],
-            [5.7, 2.9, 4.2, 1.3],
-            [5.0, 2.3, 3.3, 1.0],
-            [6.3, 3.3, 6.0, 2.5],
         ],
         dtype=np.float32,
     )
 
     output = call_triton_classifier(input)
-    print(f"Class labels:\n{output['class_labels']}")
+    # print(f"Class labels:\n{output['class_labels']}")
     print(f"Probabilities:\n{output['probabilities']}")
     print(f"Labels:\n{output['label']}")
 
