@@ -6,11 +6,11 @@ docker run -it --rm --net=host nvcr.io/nvidia/tritonserver:23.04-py3-sdk
 perf_analyzer -m onnx_classifier -u localhost:8500 --concurrency-range 2:2 --shape float_input:1,4
 
 ### Система:
-ОС: Ubuntu 22.04.1 LTS
-Процессор: Intel(R) Core(TM) i5-8250U CPU @ 1.60GHz
-Кол-во ядер: 4
-Использованная RAM: 8 ГБ
-Выделенная контейнеру shared memory: 64 МБ
+- ОС: Ubuntu 22.04.1 LTS
+- Процессор: Intel(R) Core(TM) i5-8250U CPU @ 1.60GHz
+- Кол-во ядер: 4
+- Использованная RAM: 8 ГБ
+- Выделенная контейнеру shared memory: 64 МБ
 
 ### Структура:
 ```
@@ -66,5 +66,5 @@ triton_inference_server
     Avg latency: 529 usec (standard deviation 334 usec)
 
 
-Не наблюдается улучшения мtтрик при увеличении кол-ва инстансов модели
+Не наблюдается улучшения метрик при увеличении кол-ва инстансов модели
 Вывод: оставим 1 инстанс модели
