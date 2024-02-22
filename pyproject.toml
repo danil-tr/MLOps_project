@@ -21,6 +21,7 @@ catboost = "^1.2.2"
 seaborn = "^0.13.2"
 tritonclient = {extras = ["all"], version = "^2.42.0"}
 onnxruntime = "^1.17.0"
+skl2onnx = "^1.16.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.4"
