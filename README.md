@@ -51,6 +51,6 @@ triton_inference_server
 ```
 1) Markdown отчет с оптимизацией хранится в корневой директории - triton_report.md<br><br>
 2) Необходимо сформировать файл model.onnx в папке triton_inference_server/model_repository/onnx_classifier/1:<br><br>
-2.1. Сделать ```dvc pull```. Тогда model.onnx загрузится из dvc<br><br>
+2.1. Сделать  ```dvc fetch triton_inference_server/model_repository/onnx_classifier/1/model.onnx```, затем ```dvc pull```. Тогда model.onnx загрузится из dvc<br><br>
 2.2. В папке triton_inference_server запустить ```sudo docker compose up```<br><br>
 2.3. В папке triton_inference_server запустить  ```python3 client.py```. При этом серверу отправится тестовый батч, в терминал выведется ответ.<br><br>
