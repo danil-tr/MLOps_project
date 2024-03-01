@@ -1,12 +1,12 @@
 import os
 
-import constants
+import optional_functions
 import matplotlib.pylab as plt
 import pandas as pd
 import seaborn as sns
 
 
-images_path = os.path.join(constants.get_project_path(), "model_result")
+images_path = os.path.join(optional_functions.get_project_path(), "model_result")
 
 
 def get_fig_correlation_matrix(iris_df: pd.DataFrame) -> plt.figure:

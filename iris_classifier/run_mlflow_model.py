@@ -1,6 +1,6 @@
 import os
 
-import constants
+import optional_functions
 import hydra
 import pandas as pd
 import requests
@@ -15,21 +15,19 @@ cs.store(group="data", name="base_iris", node=IrisData)
 
 
 @hydra.main(
-    config_path=os.path.join(constants.get_project_path(), "config"),
+    config_path=os.path.join(optional_functions.get_project_path(), "config"),
     config_name="config",
     version_base="1.3.2",
 )
 def main(cfg: Params) -> None:
-    project_directory_path = constants.get_project_path()
+    project_directory_path = optional_functions.get_project_path()
+    data_test_path = os.path.join(project_directory_path, cfg["data"]["path"], "test.csv")
 
-    data_path = os.path.join(project_directory_path, cfg["data"]["path"], "test.csv")
     fs = DVCFileSystem(project_directory_path)
-    fs.get_file("/data/test.csv", data_path)
-
-    test_df = pd.read_csv(data_path)
+    test_df = optional_functions.get_dvc_data(fs, "/data/test.csv", data_test_path)
     test_df.drop(columns=test_df.columns[0], axis=1, inplace=True)
-    X_test = test_df.iloc[:, 0:4]
 
+    X_test = test_df.iloc[:, 0:4]
     uri = f"{cfg['inference_server']['uri']}/invocations"
 
     json_data = {"dataframe_split": X_test.iloc[:5].to_dict(orient="split")}

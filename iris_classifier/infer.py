@@ -1,6 +1,6 @@
 import os
 
-import constants
+import optional_functions
 import hydra
 import pandas as pd
 from catboost import CatBoostClassifier
@@ -21,7 +21,6 @@ def infer_model(model: CatBoostClassifier, test_df: pd.DataFrame) -> pd.DataFram
     y_test = test_df["Species"]
 
     y_prediction = model.predict(X_test)
-    # y_prediction_proba = model.predict_proba(X_test)
 
     print(
         "The accuracy of the model is",
@@ -32,13 +31,12 @@ def infer_model(model: CatBoostClassifier, test_df: pd.DataFrame) -> pd.DataFram
 
 
 @hydra.main(
-    config_path=os.path.join(constants.get_project_path(), "config"),
+    config_path=os.path.join(optional_functions.get_project_path(), "config"),
     config_name="config",
     version_base="1.3.2",
 )
 def main(cfg: Params) -> None:
-    project_directory_path = constants.get_project_path()
-
+    project_directory_path = optional_functions.get_project_path()
     data_path = os.path.join(project_directory_path, cfg["data"]["path"], "test.csv")
     model_path = os.path.join(
         project_directory_path, "model_result", "trained_model.onnx"
@@ -48,9 +46,8 @@ def main(cfg: Params) -> None:
     )
 
     fs = DVCFileSystem(project_directory_path)
-    fs.get_file("/data/test.csv", data_path)
+    test_df = optional_functions.get_dvc_data(fs, "/data/test.csv", data_path)
 
-    test_df = pd.read_csv(data_path)
     model = CatBoostClassifier()
     model.load_model(model_path, format="onnx")
 

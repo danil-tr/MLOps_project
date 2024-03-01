@@ -1,6 +1,6 @@
 import os
 
-import constants
+import optional_functions
 import hydra
 import mlflow
 import pandas as pd
@@ -12,14 +12,13 @@ from hydra.core.config_store import ConfigStore
 from mlflow.models import infer_signature
 from sklearn import metrics
 
-
 cs = ConfigStore.instance()
 cs.store(name="params", node=Params)
 cs.store(group="data", name="base_iris", node=IrisData)
 
 
 def train_model(
-    train_df: pd.DataFrame, test_df: pd.DataFrame, cfg: Params = None, **model_params
+        train_df: pd.DataFrame, test_df: pd.DataFrame, cfg: Params = None, **model_params
 ) -> CatBoostClassifier:
     X_train = train_df.iloc[:, 0:4]
     y_train = train_df["Species"]
@@ -41,7 +40,6 @@ def train_model(
             y_prediction = model.predict(X_test)
             y_prediction_proba = model.predict_proba(X_test)
 
-            # Log metrics and artifacts
             roc_auc = metrics.roc_auc_score(
                 y_test, y_prediction_proba, multi_class="ovr", average="macro"
             )
@@ -56,7 +54,6 @@ def train_model(
                 pd.concat([test_df, train_df], ignore_index=True)
             )
 
-            # local_artifacts_path = os.path.join(constants.get_project_path(), "model_result")
             mlflow.log_params(
                 {
                     "features": features,
@@ -72,13 +69,11 @@ def train_model(
             mlflow.log_figure(corr_matrix_fig, "correlation_matrix.png")
             mlflow.log_figure(pair_features_fig, "pair_features_fig.png")
 
-            # Log model
             signature = infer_signature(X_train, y_prediction)
             mlflow.catboost.log_model(model, "model", signature=signature)
 
-            # Save model
             mlflow_model_path = os.path.join(
-                constants.get_project_path(), "model_result", "mlflow_model"
+                optional_functions.get_project_path(), "model_result", "mlflow_model"
             )
             if not os.path.exists(mlflow_model_path):
                 mlflow.catboost.save_model(model, mlflow_model_path, signature=signature)
@@ -90,12 +85,12 @@ def train_model(
 
 
 @hydra.main(
-    config_path=os.path.join(constants.get_project_path(), "config"),
+    config_path=os.path.join(optional_functions.get_project_path(), "config"),
     config_name="config",
     version_base="1.3.2",
 )
 def main(cfg: Params) -> None:
-    project_directory_path = constants.get_project_path()
+    project_directory_path = optional_functions.get_project_path()
     data_train_path = os.path.join(
         project_directory_path, cfg["data"]["path"], "train.csv"
     )
@@ -105,10 +100,10 @@ def main(cfg: Params) -> None:
     )
 
     fs = DVCFileSystem(project_directory_path)
-    fs.get_file("/data/train.csv", data_train_path)
-    fs.get_file("/data/test.csv", data_test_path)
-    train_df, test_df = pd.read_csv(data_train_path), pd.read_csv(data_test_path)
+    train_df = optional_functions.get_dvc_data(fs, "/data/train.csv", data_train_path)
     train_df.drop(columns=train_df.columns[0], axis=1, inplace=True)
+
+    test_df = optional_functions.get_dvc_data(fs, "/data/test.csv", data_test_path)
     test_df.drop(columns=test_df.columns[0], axis=1, inplace=True)
 
     model_params = {key: value for key, value in cfg["model"].items() if key != "name"}
